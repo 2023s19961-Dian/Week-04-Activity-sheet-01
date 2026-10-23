@@ -1,0 +1,23 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+A = np.array([5, 2, 8, 4, 7, 1, 5, 10, 4, 7, 3, 6, 3, 5, 2, 7, 4, 9, 5, 11])
+
+print("(a) mean = ", np.mean(A))
+print("    median = ", np.median(A))
+print("(b) sample variance = ", np.var(A, ddof=1))
+print("    sample std dev = ", np.std(A, ddof=1))
+B = A.copy()
+B[np.where(B == 8)[0][0]] = 12
+print("(c) updated data = ", B)
+print("    mean = ", np.mean(B))
+print("    median = ", np.median(B))
+print("    sample variance = ", np.var(B, ddof=1))
+print("    sample std dev = ", np.std(B, ddof=1))
+
+plt.hist(B, bins=np.arange(0.5, 13.5, 1), edgecolor="black")
+plt.xlabel("Self-study hours")
+plt.ylabel("Number of students")
+plt.title("Self-study hours (updated data)")
+plt.show()
+
