@@ -1,23 +1,163 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import sympy as sp
+import streamlit as st
 
-A = np.array([5, 2, 8, 4, 7, 1, 5, 10, 4, 7, 3, 6, 3, 5, 2, 7, 4, 9, 5, 11])
+st.set_page_config(page_title="Maths & Stats Dashboard", layout="wide")
+st.title("📊 Maths & Statistics Dashboard")
 
-print("(a) mean = ", np.mean(A))
-print("    median = ", np.median(A))
-print("(b) sample variance = ", np.var(A, ddof=1))
-print("    sample std dev = ", np.std(A, ddof=1))
-B = A.copy()
-B[np.where(B == 8)[0][0]] = 12
-print("(c) updated data = ", B)
-print("    mean = ", np.mean(B))
-print("    median = ", np.median(B))
-print("    sample variance = ", np.var(B, ddof=1))
-print("    sample std dev = ", np.std(B, ddof=1))
+page = st.sidebar.radio(
+    "Select question",
+    ["Q1 – Descriptive Statistics", "Q2 – Linear Algebra", "Q3 – Calculus (SymPy)"],
+)
 
-plt.hist(B, bins=np.arange(0.5, 13.5, 1), edgecolor="black")
-plt.xlabel("Self-study hours")
-plt.ylabel("Number of students")
-plt.title("Self-study hours (updated data)")
-plt.show()
 
+def fmt(arr, decimals=4):
+    """Format a NumPy array (real or complex) as text for display."""
+    return np.array2string(np.round(arr, decimals), precision=decimals, suppress_small=True)
+
+
+# ---------------------------------------------------------------- Q1
+if page.startswith("Q1"):
+    st.header("Q1 · Self-study hours")
+
+    A = np.array([5, 2, 8, 4, 7, 1, 5, 10, 4, 7, 3, 6, 3, 5, 2, 7, 4, 9, 5, 11])
+
+    st.sidebar.subheader("Q1 settings")
+    old_val = st.sidebar.number_input("Value to replace (first occurrence)", value=8, step=1)
+    new_val = st.sidebar.number_input("Replace with", value=12, step=1)
+
+    B = A.copy()
+    idx = np.where(B == old_val)[0]
+    if len(idx) > 0:
+        B[idx[0]] = new_val
+    else:
+        st.sidebar.warning(f"{old_val} not found in data – no change made.")
+
+    def stats(x):
+        return {
+            "Mean": np.mean(x),
+            "Median": np.median(x),
+            "Sample variance": np.var(x, ddof=1),
+            "Sample std dev": np.std(x, ddof=1),
+        }
+
+    sa, sb = stats(A), stats(B)
+
+    st.subheader("(a) & (b) Original data")
+    c = st.columns(4)
+    for col, (k, v) in zip(c, sa.items()):
+        col.metric(k, f"{v:.4f}")
+    st.write("Data:", A.tolist())
+
+    st.subheader("(c) Updated data")
+    c = st.columns(4)
+    for col, (k, v) in zip(c, sb.items()):
+        col.metric(k, f"{v:.4f}", delta=f"{v - sa[k]:+.4f}")
+    st.write("Updated data:", B.tolist())
+
+    st.subheader("Comparison")
+    st.dataframe(pd.DataFrame({"Original": sa, "Updated": sb}).round(4), use_container_width=True)
+
+    st.subheader("Histogram")
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.hist(B, bins=np.arange(0.5, B.max() + 1.5, 1), edgecolor="black")
+    ax.set_xlabel("Self-study hours")
+    ax.set_ylabel("Number of students")
+    ax.set_title("Self-study hours (updated data)")
+    st.pyplot(fig)
+
+# ---------------------------------------------------------------- Q2
+elif page.startswith("Q2"):
+    st.header("Q2 · Matrices and linear systems")
+
+    A = np.array([[2, 1, 1],
+                  [1, 3, 2],
+                  [3, 1, 2]], dtype=float)
+    B = np.array([10, 18, 17], dtype=float)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Matrix A")
+        st.latex(sp.latex(sp.Matrix(A.astype(int))))
+    with col2:
+        st.subheader("Vector B")
+        st.latex(sp.latex(sp.Matrix(B.astype(int))))
+
+    st.subheader("(a) Matrix properties")
+    det = np.linalg.det(A)
+    st.metric("(i) det(A)", f"{det:.4f}")
+
+    if abs(det) > 1e-12:
+        st.markdown("**(ii) Inverse of A**")
+        st.dataframe(pd.DataFrame(np.linalg.inv(A)).round(4), use_container_width=True)
+    else:
+        st.error("A is singular – no inverse.")
+
+    values, vectors = np.linalg.eig(A)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("**(iii) Eigenvalues**")
+        st.code(fmt(values))
+    with c2:
+        st.markdown("**(iv) Eigenvectors (columns)**")
+        st.code(fmt(vectors))
+
+    st.subheader("(b) Solution of AX = B")
+    X = np.linalg.solve(A, B)
+    c = st.columns(3)
+    for col, name, v in zip(c, ["x", "y", "z"], X):
+        col.metric(name, f"{v:.4f}")
+
+    st.subheader("(c) Residual")
+    R = A @ X - B
+    st.code(f"R = {fmt(R, 10)}")
+    st.metric("||R||₂", f"{np.linalg.norm(R):.3e}")
+
+# ---------------------------------------------------------------- Q3
+else:
+    st.header("Q3 · Polynomial calculus with SymPy")
+
+    t = sp.Symbol("t")
+    f = t**3 - 6 * t**2 + 9 * t + 2
+
+    st.latex(r"f(t) = " + sp.latex(f))
+
+    st.subheader("(a) Factorisation")
+    st.latex(r"f(t) = " + sp.latex(sp.factor(f)))
+    st.write("Numerical roots:", [complex(r) if r.is_real is False else float(r) for r in sp.Poly(f, t).nroots()])
+
+    st.subheader("(b) Equation solving")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("**f(t) = 0**")
+        for r in sp.Poly(f, t).nroots():
+            st.latex(sp.latex(sp.N(r, 6)))
+    with c2:
+        st.markdown("**f(t) = 2**")
+        st.latex(r"t = " + sp.latex(sp.solve(sp.Eq(f, 2), t)))
+
+    st.subheader("(c) Derivatives")
+    c1, c2 = st.columns(2)
+    c1.latex(r"f'(t) = " + sp.latex(sp.diff(f, t)))
+    c2.latex(r"f''(t) = " + sp.latex(sp.diff(f, t, 2)))
+
+    st.subheader("(d) Indefinite integral")
+    st.latex(r"\int f(t)\,dt = " + sp.latex(sp.integrate(f, t)) + r" + C")
+
+    st.subheader("(e) Definite integral")
+    st.latex(r"\int_0^2 f(t)\,dt = " + sp.latex(sp.integrate(f, (t, 0, 2))))
+
+    st.subheader("Plot of f(t)")
+    lo, hi = st.slider("t range", -3.0, 6.0, (-1.0, 5.0))
+    ts = np.linspace(lo, hi, 400)
+    fn = sp.lambdify(t, f, "numpy")
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.plot(ts, fn(ts), label="f(t)")
+    ax.axhline(0, color="grey", lw=0.8)
+    ax.set_xlabel("t")
+    ax.set_ylabel("f(t)")
+    ax.grid(alpha=0.3)
+    ax.legend()
+    st.pyplot(fig)
