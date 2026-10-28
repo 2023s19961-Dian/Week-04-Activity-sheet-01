@@ -5,13 +5,13 @@ import os
 
 # Dashboard settings
 st.set_page_config(
-    page_title="Group 44 Dashboard",
+    page_title="Group 03 Dashboard",
     page_icon="📊",
     layout="wide"
 )
 
 # Title
-st.title("📊 Group 44 - Worksheet Solutions Dashboard")
+st.title("📊 Group 03 - Worksheet Solutions Dashboard")
 st.write("Computational Mathematics")
 st.write("Four Questions | Four Contributors")
 
@@ -56,7 +56,7 @@ question = st.selectbox(
 # Python filenames
 files = {
     "Question 1": "Q1.py",
-    "Question 2": "Q2.py",
+    "Question 2": "act4_q2.py",
     "Question 3": "Q3.py",
     "Question 4": "Q4.py"
 }
@@ -94,4 +94,4 @@ if st.button("Run Selected Question"):
 
 st.divider()
 
-st.caption("Group 44 | Worksheet Solutions")
+st.caption("Group 03 | Worksheet Solutions")
