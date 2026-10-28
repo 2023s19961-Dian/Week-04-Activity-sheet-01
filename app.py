@@ -62,8 +62,6 @@ files = {
     "Question 4": "Q4.py"
 }
 
-# Graphs saved by each question script.
-# Add or change filenames to match your scripts.
 graph_files = {
     "Question 1": ["Q1_graph.png"],
     "Question 2": ["Q2_graph.png"],
@@ -88,6 +86,19 @@ if st.button("Run Selected Question", type="primary"):
         st.error(f"File not found: {filename}")
 
     else:
+        # Read and display the source code
+        st.subheader(f"{question} - Python Source Code")
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                source_code = file.read()
+
+            st.code(source_code, language="python")
+
+        except Exception as e:
+            st.error(f"Could not read the source code: {e}")
+
+        # Execute the selected Python program
         try:
             with st.spinner(f"Running {question}..."):
 
@@ -99,40 +110,41 @@ if st.button("Run Selected Question", type="primary"):
                     cwd=folder
                 )
 
-            st.subheader(f"{question} Results")
-
             # Display program output
+            st.subheader(f"{question} - Program Output")
+
             if result.stdout.strip():
                 st.code(result.stdout, language="text")
             else:
                 st.info("The program did not produce text output.")
 
-            # Display errors if the program failed
+            # Display errors
             if result.returncode != 0:
                 st.error("The program did not finish successfully.")
 
                 if result.stderr.strip():
+                    st.subheader("Error Details")
                     st.code(result.stderr, language="text")
 
             else:
-                st.success("Program execution completed successfully.")
+                st.success("Program executed successfully!")
 
-                # Show saved graphs, if available
+                # Display saved graphs
                 for graph_file in graph_files.get(question, []):
 
                     graph_path = os.path.join(folder, graph_file)
 
                     if os.path.isfile(graph_path):
-                        st.subheader(f"{question} Graph")
+                        st.subheader(f"{question} - Graph")
                         st.image(
                             graph_path,
                             caption=graph_file,
                             use_container_width=True
                         )
 
-                # Show warnings or other messages
+                # Display additional messages
                 if result.stderr.strip():
-                    st.warning("Additional program messages:")
+                    st.subheader("Additional Messages")
                     st.code(result.stderr, language="text")
 
         except subprocess.TimeoutExpired:
@@ -146,4 +158,6 @@ st.divider()
 # -------------------------------
 # Footer
 # -------------------------------
-st.caption("Group 03 | Computational Mathematics | Worksheet Solutions")
+st.caption(
+    "Group 03 | Computational Mathematics | Worksheet Solutions"
+)
