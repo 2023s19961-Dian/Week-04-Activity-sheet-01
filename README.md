@@ -55,7 +55,7 @@ python -m streamlit run app.py
 - K.W.J.K.Wickramarachchi -17444- Question 1
 - S.P.Dissanayake-17395 - Question 2
 - D.S.Delpachithra -   17287 - Question 3
--R.M.K.C.Randeni - 17425- Question 4
+- R.M.K.C.Randeni - 17425- Question 4
 
 ## 7. GitHub Repository
 
