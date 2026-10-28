@@ -2,9 +2,9 @@
 
 ## 1. Project Description
 
-This project is an interactive dashboard developed using Streamlit for the Computational Mathematics worksheet. It integrates the existing Python solutions from Questions 1–4 into a single application.
+This project presents a Streamlit-based dashboard that combines the Python solutions for Questions 1–4 of the Computational Mathematics worksheet. It provides a user-friendly interface for selecting and executing individual solutions.
 
-Users can select a question, run its Python program, and view the output and graphs where available. The dashboard reuses the existing mathematical logic without re-implementing the core calculations.
+The application displays the results and available graphs, making it easier to explore each solution in one place. By integrating the existing Python modules, the dashboard avoids duplicating mathematical computations and maintains a modular project structure.
 
 ## 2. Technologies Used
 
