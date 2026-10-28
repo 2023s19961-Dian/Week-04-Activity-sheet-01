@@ -54,5 +54,5 @@ plt.subplot(2,2,4)
 heatmap_data = data[['Study Hours', 'Assignment']]
 sns.heatmap(heatmap_data, annot=True, cmap='coolwarm', fmt='.1f')
 plt.title("Heatmap of Study Hours vs Assignment Marks")
-plt.savefig("Q1_graph.png", bbox_inches="tight")
+plt.savefig("Q4_graph.png", bbox_inches="tight")
 plt.close()
