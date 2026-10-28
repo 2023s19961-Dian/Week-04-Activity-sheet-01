@@ -41,7 +41,7 @@ with col2:
     st.write("Question 2")
 
 with col3:
-    st.markdown("### Dain")
+    st.markdown("### Dian")
     st.write("Question 3")
 
 with col4:
