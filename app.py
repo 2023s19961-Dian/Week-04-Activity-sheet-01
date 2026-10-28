@@ -4,7 +4,9 @@ import subprocess
 import sys
 import os
 
-# Dashboard settings
+# -------------------------------
+# Dashboard Settings
+# -------------------------------
 st.set_page_config(
     page_title="Group 03 Dashboard",
     page_icon="📊",
@@ -14,14 +16,18 @@ st.set_page_config(
 # Project folder
 folder = os.path.dirname(os.path.abspath(__file__))
 
-# Title
+# -------------------------------
+# Dashboard Title
+# -------------------------------
 st.title("📊 Group 03 - Worksheet Solutions Dashboard")
 st.write("Computational Mathematics")
 st.write("Four Questions | Four Contributors")
 
 st.divider()
 
-# Contributor details
+# -------------------------------
+# Group Members
+# -------------------------------
 st.subheader("Group Members")
 
 col1, col2, col3, col4 = st.columns(4)
@@ -44,20 +50,11 @@ with col4:
 
 st.divider()
 
-# Question selection
+# -------------------------------
+# Question Selection
+# -------------------------------
 st.subheader("Run the Solutions")
 
-question = st.selectbox(
-    "Select a question:",
-    [
-        "Question 1",
-        "Question 2",
-        "Question 3",
-        "Question 4"
-    ]
-)
-
-# Python filenames
 files = {
     "Question 1": "Q1.py",
     "Question 2": "act4_q2.py",
@@ -65,72 +62,88 @@ files = {
     "Question 4": "Q4.py"
 }
 
-# Graph filenames for Question 1 and Question 4
+# Graphs saved by each question script.
+# Add or change filenames to match your scripts.
 graph_files = {
     "Question 1": ["Q1_graph.png"],
+    "Question 2": ["Q2_graph.png"],
+    "Question 3": ["Q3_graph.png"],
     "Question 4": ["Q4_graph.png"]
 }
 
-# Run the selected program
-if st.button("Run Selected Question"):
+question = st.selectbox(
+    "Select a question:",
+    list(files.keys())
+)
+
+# -------------------------------
+# Run Selected Question
+# -------------------------------
+if st.button("Run Selected Question", type="primary"):
+
     filename = files[question]
     file_path = os.path.join(folder, filename)
 
-    if os.path.exists(file_path):
+    if not os.path.isfile(file_path):
+        st.error(f"File not found: {filename}")
+
+    else:
         try:
-            result = subprocess.run(
-                [sys.executable, file_path],
-                capture_output=True,
-                text=True,
-                timeout=60,
-                cwd=folder
-            )
+            with st.spinner(f"Running {question}..."):
 
-            st.subheader(f"{question} Output")
-
-            if result.stdout.strip():
-                st.code(result.stdout)
-
-            if result.stderr.strip():
-                st.warning("Program messages:")
-                st.code(result.stderr)
-
-            if result.returncode == 0:
-                st.success("Program execution completed successfully.")
-            else:
-                st.error(
-                    f"Program failed with exit code {result.returncode}."
+                result = subprocess.run(
+                    [sys.executable, file_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=60,
+                    cwd=folder
                 )
 
-            # Display graph for Question 1 or Question 4
-            if result.returncode == 0 and question in graph_files:
-                for graph_file in graph_files[question]:
+            st.subheader(f"{question} Results")
+
+            # Display program output
+            if result.stdout.strip():
+                st.code(result.stdout, language="text")
+            else:
+                st.info("The program did not produce text output.")
+
+            # Display errors if the program failed
+            if result.returncode != 0:
+                st.error("The program did not finish successfully.")
+
+                if result.stderr.strip():
+                    st.code(result.stderr, language="text")
+
+            else:
+                st.success("Program execution completed successfully.")
+
+                # Show saved graphs, if available
+                for graph_file in graph_files.get(question, []):
+
                     graph_path = os.path.join(folder, graph_file)
 
-                    if os.path.exists(graph_path):
+                    if os.path.isfile(graph_path):
                         st.subheader(f"{question} Graph")
                         st.image(
                             graph_path,
-                            caption=f"{question} Graph",
+                            caption=graph_file,
                             use_container_width=True
                         )
-                    else:
-                        st.info(
-                            f"{graph_file} was not found. "
-                            f"Update {filename} to save its graph "
-                            f"as {graph_file}."
-                        )
+
+                # Show warnings or other messages
+                if result.stderr.strip():
+                    st.warning("Additional program messages:")
+                    st.code(result.stderr, language="text")
 
         except subprocess.TimeoutExpired:
-            st.error("The program took too long to finish.")
+            st.error("The program took longer than 60 seconds.")
 
         except Exception as e:
             st.error(f"An unexpected error occurred: {e}")
 
-    else:
-        st.error(f"File not found: {filename}")
-
 st.divider()
 
-st.caption("Group 03 | Worksheet Solutions")
-
+# -------------------------------
+# Footer
+# -------------------------------
+st.caption("Group 03 | Computational Mathematics | Worksheet Solutions")
