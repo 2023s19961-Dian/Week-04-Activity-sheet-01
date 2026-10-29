@@ -1,11 +1,9 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Hypothetical model parameters
 arrival_rate = 10
 service_rate = 2
-
 counters = np.arange(4, 11)
 waiting_times = []
 utilizations = []
@@ -29,7 +27,7 @@ plt.figure(figsize=(11, 6))
 # Plot stable cases
 stable = np.isfinite(waiting_times)
 
-plt.plot(
+plt.scatter(
     counters[stable],
     waiting_times[stable],
     marker="o",
@@ -52,28 +50,6 @@ plt.scatter(
     zorder=5
 )
 
-# Separate labels so they do not overlap
-plt.annotate(
-    "4 counters: UNSTABLE",
-    xy=(4, 5.4),
-    xytext=(4, 5.85),
-    ha="center",
-    fontsize=9,
-    color="red",
-    fontweight="bold",
-    arrowprops=dict(arrowstyle="->", color="red")
-)
-
-plt.annotate(
-    "5 counters: UNSTABLE",
-    xy=(5, 5.4),
-    xytext=(6, 5.0),
-    ha="left",
-    fontsize=9,
-    color="red",
-    fontweight="bold",
-    arrowprops=dict(arrowstyle="->", color="red")
-)
 
 # Five-minute target
 plt.axhline(
